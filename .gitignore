@@ -1,0 +1,5 @@
+.venv/
+.idea/
+hooks/
+.ask/
+lambda/py/lambda_upload

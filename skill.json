@@ -1,0 +1,67 @@
+{
+  "manifest": {
+    "publishingInformation": {
+      "locales": {
+        "en-US": {
+          "summary": "Plays audio from Desiring God Sermon of the Day.",
+          "examplePhrases": [
+            "Alexa play sermon of the day",
+            "Alexa open sermon of the day",
+            "Alexa start sermon of the day"
+          ],
+          "keywords": [
+            "desiring",
+            "god",
+            "sermon",
+            "of",
+            "the",
+            "day",
+            "word",
+            "of",
+            "god",
+            "spiritual",
+            "growth",
+            "daily",
+            "jesus",
+            "religious"
+          ],
+          "name": "Sermon of the Day",
+          "smallIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/e954/c70c43c2af9643abb47506f0fd8a00a1/APP_ICON?versionId=.fjyz0lr7DwVCWwtPkShS1UIaVqFVgir&AWSAccessKeyId=AKIAJFEYRBGIHK2BBYKA&Expires=1546800815&Signature=iW23ceq3ueLY0vHIs1TzvqoCmdE%3D",
+          "description": "This skill plays audio from the Desiring God Sermon of the Day. It only plays the current date's sermon.\nTo install simply say \"Alexa enable sermon of the day\".  \nTo begin playing today's sermon: \"Alexa play sermon of the day\". \nYou can interrupt the read and say \"Alexa start over\" to start the sermon over.\n\nThis is an unofficial skill that simply forwards the content to your Alexa enabled device.",
+          "largeIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/4eb3/6d733ed8b0a94d9a8001a9ec9a928d38/APP_ICON_LARGE?versionId=iaN9ZoDlBQ0kXh5OBkn_YC3C_nqryKEK&AWSAccessKeyId=AKIAJFEYRBGIHK2BBYKA&Expires=1546800815&Signature=EWxP2Jt41qxgl%2FkXBmXsEuxwhMM%3D"
+        }
+      },
+      "isAvailableWorldwide": true,
+      "testingInstructions": "Try the sample utterances and also start over and help. APL is used.",
+      "category": "RELIGION_AND_SPIRITUALITY",
+      "distributionCountries": []
+    },
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "sourceDir": "lambda/py/lambda_upload",
+          "uri": "ask-custom-sermon-of-the-day-default"
+        }
+      },
+       "interfaces": [
+          {
+            "type": "AUDIO_PLAYER"
+          }
+        ]
+    },
+    "manifestVersion": "1.0",
+    "privacyAndCompliance": {
+      "allowsPurchases": false,
+      "locales": {
+        "en-US": {
+          "termsOfUseUrl": "https://raw.githubusercontent.com/angelusualle/Sermon_of_the_Day/master/docs/Terms%20Of%20Use.html",
+          "privacyPolicyUrl": "https://raw.githubusercontent.com/angelusualle/Sermon_of_the_Day/master/docs/Privacy%20Policy.txt"
+        }
+      },
+      "isExportCompliant": true,
+      "containsAds": false,
+      "isChildDirected": false,
+      "usesPersonalInfo": false
+    }
+  }
+}
