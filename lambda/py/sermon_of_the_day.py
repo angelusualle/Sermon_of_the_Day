@@ -5,8 +5,6 @@ import pytz
 import requests
 from ask_sdk_core.skill_builder import SkillBuilder
 from ask_sdk_core.utils import is_request_type, is_intent_name
-from ask_sdk_core.handler_input import HandlerInput
-from ask_sdk_model import Response
 from alexa import util
 
 sb = SkillBuilder()
@@ -14,24 +12,7 @@ sb = SkillBuilder()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 API_URL = "https://api.desiringgod.org/"
-
-
-def can_handle(handler_input):
-    # type: (HandlerInput) -> bool
-    if handler_input.request_envelope.context.system.device:
-        # Since skill events won't have device information
-        return handler_input.request_envelope.context.system.device.supported_interfaces.audio_player is None
-    else:
-        return False
-
-
-@sb.request_handler(can_handle_func=can_handle)
-def handle(handler_input):
-    # type: (HandlerInput) -> Response
-    logger.info("In CheckAudioInterfaceHandler")
-    handler_input.response_builder.speak("Sorry, this skill is not supported on this device").\
-            set_should_end_session(True)
-    return handler_input.response_builder.response
+ICON_URL = "https://s3.amazonaws.com/alexaskillresourcesabarranc/icon_sermon_of_the_day.png"
 
 
 @sb.request_handler(can_handle_func=is_request_type("LaunchRequest"))
@@ -63,14 +44,17 @@ def launch_request_handler(handler_input):
     # Get information using index from DG API
     data = get_sermon_of_the_day(index)
     speech_text = "Playing Sermon of the day from Desiring God, titled: " + data['title']
-    return util.play(url=data['sound_url'], offset=0, text=speech_text, card_data=None,
-                     response_builder=handler_input.response_builder)
+    return util.play(url=data['sound_url'],
+                     offset=0,
+                     data={'title': data['title'],
+                           'subtitle': 'Desiring God',
+                           'icon_url': ICON_URL},
+                     response_builder=handler_input.response_builder).speak(speech_text).response
 
 
 @sb.request_handler(can_handle_func=is_intent_name("AMAZON.HelpIntent"))
 def help_intent_handler(handler_input):
     """Handler for Help Intent."""
-    # type: (HandlerInput) -> Response
     speech_text = "You can play, pause and start over the sermon."
 
     return handler_input.response_builder.speak(speech_text).ask(
@@ -83,7 +67,6 @@ def help_intent_handler(handler_input):
         is_intent_name("AMAZON.StopIntent")(handler_input))
 def cancel_and_stop_intent_handler(handler_input):
     """Single handler for Cancel and Stop Intent."""
-    # type: (HandlerInput) -> Response
     speech_text = "Goodbye!"
 
     return handler_input.response_builder.speak(speech_text).response
@@ -95,10 +78,9 @@ def fallback_handler(handler_input):
     This handler will not be triggered except in that locale,
     so it is safe to deploy on any locale.
     """
-    # type: (HandlerInput) -> Response
     speech = (
         "The Sermon of the day skill can't help you with that."
-        "You can say play, pause, resume, start over or stop.")
+        "You can say play, pause, resume, start over, stop or exit.")
     reprompt = "What would you like to do?"
     handler_input.response_builder.speak(speech).ask(reprompt)
     return handler_input.response_builder.response
@@ -107,7 +89,6 @@ def fallback_handler(handler_input):
 @sb.request_handler(can_handle_func=is_request_type("SessionEndedRequest"))
 def session_ended_request_handler(handler_input):
     """Handler for Session End."""
-    # type: (HandlerInput) -> Response
     return handler_input.response_builder.response
 
 
@@ -116,7 +97,6 @@ def all_exception_handler(handler_input, exception):
     """Catch all exception handler, log exception and
     respond with custom message.
     """
-    # type: (HandlerInput, Exception) -> Response
     logger.error(exception, exc_info=True)
 
     speech = "Sorry, there was some problem. Please try again!"

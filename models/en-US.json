@@ -1,43 +1,52 @@
 {
-  "interactionModel": {
-    "languageModel": {
-      "invocationName": "sermon of the day",
-      "intents": [
-        {
-          "name": "AMAZON.FallbackIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.CancelIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.HelpIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.StopIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.NavigateHomeIntent",
-          "samples": []
-        },
-        {
-          "name": "PlayIntent",
-          "slots": [],
-          "samples": [
-            "begin playing",
-            "play the sermon",
-            "play todays message",
-            "begin",
-            "play the message",
-            "play todays sermon",
-            "play"
-          ]
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "sermon of the day",
+            "intents": [
+                {
+                    "name": "AMAZON.FallbackIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "PlayIntent",
+                    "slots": [],
+                    "samples": [
+                        "start",
+                        "begin playing",
+                        "play the sermon",
+                        "play todays message",
+                        "begin",
+                        "play the message",
+                        "play todays sermon",
+                        "play"
+                    ]
+                },
+                {
+                    "name": "AMAZON.PauseIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ResumeIntent",
+                    "samples": []
+                }
+            ],
+            "types": []
         }
-      ],
-      "types": []
     }
-  }
 }

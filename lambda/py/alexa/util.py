@@ -12,7 +12,7 @@ from ask_sdk_core.response_helper import ResponseFactory
 from ask_sdk_core.handler_input import HandlerInput
 
 
-def play(url, offset, text, card_data, response_builder):
+def play(url, offset, text, data, response_builder):
     """Function to play audio.
     Using the function to begin playing audio when:
         - Play Audio Intent is invoked.
@@ -33,7 +33,7 @@ def play(url, offset, text, card_data, response_builder):
                     url=url,
                     offset_in_milliseconds=offset,
                     expected_previous_token=None),
-                metadata=add_screen_background(card_data) if card_data else None
+                metadata=add_screen_background(data) if data else None
             )
         )
     ).set_should_end_session(True)
@@ -93,19 +93,12 @@ def add_screen_background(card_data):
     if card_data:
         metadata = AudioItemMetadata(
             title=card_data["title"],
-            subtitle=card_data["text"],
+            subtitle=card_data["subtitle"],
             art=display.Image(
                 content_description=card_data["title"],
                 sources=[
                     display.ImageInstance(
-                        url="https://alexademo.ninja/skills/logo-512.png")
-                ]
-            )
-            , background_image=display.Image(
-                content_description=card_data["title"],
-                sources=[
-                    display.ImageInstance(
-                        url="https://alexademo.ninja/skills/logo-512.png")
+                        url=card_data['icon_url'])
                 ]
             )
         )
