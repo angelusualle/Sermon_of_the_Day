@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-# This is a simple Hello World Alexa Skill, built using
-# the decorators approach in skill builder.
 import logging
 from datetime import datetime
 import calendar
