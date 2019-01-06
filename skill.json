@@ -41,13 +41,13 @@
         "endpoint": {
           "sourceDir": "lambda/py/lambda_upload",
           "uri": "ask-custom-sermon-of-the-day-default"
-        }
-      },
+        },
        "interfaces": [
           {
             "type": "AUDIO_PLAYER"
           }
         ]
+      }
     },
     "manifestVersion": "1.0",
     "privacyAndCompliance": {

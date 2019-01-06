@@ -63,7 +63,6 @@ def play_later(url, card_data, response_builder):
                         expected_previous_token=None),
                     metadata=add_screen_background(card_data)))
         ).set_should_end_session(True)
-
         return response_builder.response
 
 
@@ -82,7 +81,6 @@ def stop(text, response_builder):
 
 def clear(response_builder):
     """Clear the queue amd stop the player."""
-    # type: (ResponseFactory) -> Response
     response_builder.add_directive(ClearQueueDirective(
         clear_behavior=ClearBehavior.CLEAR_ENQUEUED))
     return response_builder.response
@@ -95,7 +93,6 @@ def add_screen_background(card_data):
             title=card_data["title"],
             subtitle=card_data["subtitle"],
             art=display.Image(
-                content_description=card_data["title"],
                 sources=[
                     display.ImageInstance(
                         url=card_data['icon_url'])

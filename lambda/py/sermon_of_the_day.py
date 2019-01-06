@@ -44,17 +44,24 @@ def launch_request_handler(handler_input):
     # Get information using index from DG API
     data = get_sermon_of_the_day(index)
     speech_text = "Playing Sermon of the day from Desiring God, titled: " + data['title']
-    return util.play(url=data['sound_url'],
-                     offset=0,
-                     data={'title': data['title'],
-                           'subtitle': 'Desiring God',
-                           'icon_url': ICON_URL},
-                     response_builder=handler_input.response_builder).speak(speech_text).response
+    response = util.play(url=data['sound_url'],
+                         offset=0,
+                         text=speech_text,
+                         data={'title': data['title'],
+                               'subtitle': 'Desiring God',
+                               'icon_url': ICON_URL},
+                         response_builder=handler_input.response_builder)
+    logging.error(response)
+    return response
 
 
 @sb.request_handler(can_handle_func=is_intent_name("AMAZON.HelpIntent"))
 def help_intent_handler(handler_input):
-    """Handler for Help Intent."""
+    """
+    Launch request
+    :param handler_input: from the alexa skill
+    :return: Response object with speech and audio and APL
+    """
     speech_text = "You can play, pause and start over the sermon."
 
     return handler_input.response_builder.speak(speech_text).ask(
@@ -67,8 +74,7 @@ def help_intent_handler(handler_input):
         is_intent_name("AMAZON.StopIntent")(handler_input))
 def cancel_and_stop_intent_handler(handler_input):
     """Single handler for Cancel and Stop Intent."""
-    speech_text = "Goodbye!"
-
+    speech_text = "Goodbye"
     return handler_input.response_builder.speak(speech_text).response
 
 
@@ -106,11 +112,11 @@ def all_exception_handler(handler_input, exception):
 
 
 def get_sermon_of_the_day(index):
-    '''
+    """
     Gets a tuple info on the sermon of the day
-    :param day_of_year: integer of day of year that will be retrieved
+    :param index: integer of day of year that will be retrieved
     :return: gets sermon of the day information as tuple for deconstructing, sound_url, title, and scriptural_ref
-    '''
+    """
     url = API_URL + '/v0/collections/wjfmvjzo/resources?page[size]=1&page[number]=' + str(index)
     r = requests.get(url, headers={'Authorization': 'Token token="e6f600e7ee34870d05a55b28bc7e4a91"'})
     if r.status_code != 200:
