@@ -1,18 +1,15 @@
-# -*- coding: utf-8 -*-
-
-import datetime
-from typing import Dict, Optional
-from ask_sdk_model import Request, Response
-from ask_sdk_model.ui import StandardCard, Image
+from ask_sdk_model import Response
 from ask_sdk_model.interfaces.audioplayer import (
     PlayDirective, PlayBehavior, AudioItem, Stream, AudioItemMetadata,
     StopDirective, ClearQueueDirective, ClearBehavior)
 from ask_sdk_model.interfaces import display
 from ask_sdk_core.response_helper import ResponseFactory
-from ask_sdk_core.handler_input import HandlerInput
+from ask_sdk_model.interfaces.alexa.presentation.apl import RenderDocumentDirective
+from typing import Dict, Optional
+import json
 
 
-def play(url, offset, text, data, response_builder):
+def play(url, offset, text, data, response_builder, document, datasources):
     """Function to play audio.
     Using the function to begin playing audio when:
         - Play Audio Intent is invoked.
@@ -21,8 +18,8 @@ def play(url, offset, text, data, response_builder):
     https://developer.amazon.com/docs/custom-skills/audioplayer-interface-reference.html#play
     REPLACE_ALL: Immediately begin playback of the specified stream,
     and replace current and enqueued streams.
+    This also adds an APL document
     """
-    # type: (str, int, str, Dict, ResponseFactory) -> Response
     # Using URL as token as they are all unique
     response_builder.add_directive(
         PlayDirective(
@@ -36,12 +33,24 @@ def play(url, offset, text, data, response_builder):
                 metadata=add_screen_background(data) if data else None
             )
         )
-    ).set_should_end_session(True)
+    ).add_directive(
+            RenderDocumentDirective(
+                token="APLTemplate" + url,
+                document=_load_apl_document(document),
+                datasources=datasources
+            )
+        ).set_should_end_session(True)
 
     if text:
         response_builder.speak(text)
 
     return response_builder.response
+
+
+def _load_apl_document(file_path):
+    """Load the apl json document at the path into a dict object."""
+    with open(file_path) as f:
+        return json.load(f)
 
 
 def play_later(url, card_data, response_builder):

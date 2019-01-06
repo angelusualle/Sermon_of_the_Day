@@ -50,7 +50,24 @@ def launch_request_handler(handler_input):
                          data={'title': data['title'],
                                'subtitle': 'Desiring God',
                                'icon_url': ICON_URL},
-                         response_builder=handler_input.response_builder)
+                         response_builder=handler_input.response_builder,
+                         document='APLTemplate.json',
+                         datasources={
+                            "bodyTemplate3Data": {
+                                "type": "object",
+                                "objectId": "bt3Sample",
+                                "textContent": {
+                                    "title": {
+                                        "type": "PlainText",
+                                        "text": data['title']
+                                    },
+                                    "scripturalRef": {
+                                        "type": "PlainText",
+                                        "text": data['scriptural_ref']
+                                    }
+                                },
+                                "hintText": "Try, \"Alexa, start over.\""
+                            }})
     logging.error(response)
     return response
 

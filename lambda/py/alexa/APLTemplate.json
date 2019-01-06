@@ -1,0 +1,384 @@
+{
+    "type": "APL",
+    "version": "1.0",
+    "theme": "dark",
+    "import": [
+        {
+            "name": "alexa-layouts",
+            "version": "1.0.0"
+        }
+    ],
+    "resources": [
+        {
+            "description": "Stock color for the light theme",
+            "colors": {
+                "colorTextPrimary": "#151920"
+            }
+        },
+        {
+            "description": "Stock color for the dark theme",
+            "when": "${viewport.theme == 'dark'}",
+            "colors": {
+                "colorTextPrimary": "#f0f1ef"
+            }
+        },
+        {
+            "description": "Standard font sizes",
+            "dimensions": {
+                "textSizeBody": 36,
+                "textSizePrimary": 27,
+                "textSizeSecondary": 23,
+                "textSizeSecondaryHint": 25
+            }
+        },
+        {
+            "description": "Common spacing values",
+            "dimensions": {
+                "spacingThin": 6,
+                "spacingSmall": 12,
+                "spacingMedium": 24,
+                "spacingLarge": 48,
+                "spacingExtraLarge": 72
+            }
+        },
+        {
+            "description": "Common margins and padding",
+            "dimensions": {
+                "marginTop": 40,
+                "marginLeft": 60,
+                "marginRight": 60,
+                "marginBottom": 40
+            }
+        }
+    ],
+    "styles": {
+        "textStyleBase": {
+            "description": "Base font description; set color and core font family",
+            "values": [
+                {
+                    "color": "@colorTextPrimary",
+                    "fontFamily": "Amazon Ember"
+                }
+            ]
+        },
+        "textStyleBase0": {
+            "description": "Thin version of basic font",
+            "extend": "textStyleBase",
+            "values": {
+                "fontWeight": "100"
+            }
+        },
+        "textStyleBase1": {
+            "description": "Light version of basic font",
+            "extend": "textStyleBase",
+            "values": {
+                "fontWeight": "300"
+            }
+        },
+        "mixinBody": {
+            "values": {
+                "fontSize": "@textSizeBody"
+            }
+        },
+        "mixinPrimary": {
+            "values": {
+                "fontSize": "@textSizePrimary"
+            }
+        },
+        "mixinSecondary": {
+            "values": {
+                "fontSize": "@textSizeSecondary"
+            }
+        },
+        "textStylePrimary": {
+            "extend": [
+                "textStyleBase1",
+                "mixinPrimary"
+            ]
+        },
+        "textStyleSecondary": {
+            "extend": [
+                "textStyleBase0",
+                "mixinSecondary"
+            ]
+        },
+        "textStyleBody": {
+            "extend": [
+                "textStyleBase1",
+                "mixinBody"
+            ]
+        },
+        "textStyleSecondaryHint": {
+            "values": {
+                "fontFamily": "Bookerly",
+                "fontStyle": "italic",
+                "fontSize": "@textSizeSecondaryHint",
+                "color": "@colorTextPrimary"
+            }
+        }
+    },
+    "layouts": {},
+    "mainTemplate": {
+        "parameters": [
+            "payload"
+        ],
+        "items": [
+            {
+                "when": "${viewport.shape == 'round'}",
+                "type": "Container",
+                "direction": "column",
+                "width": "100vw",
+                "height": "100vh",
+                "items": [
+                    {
+                        "type": "Image",
+                        "source": "https://s3.amazonaws.com/alexaskillresourcesabarranc/background_opt.png",
+                        "scale": "none",
+                        "width": "100vw",
+                        "height": "100vh",
+                        "position": "absolute",
+                        "overlayColor": "rgba(0, 0, 0, 0.6)"
+                    },
+                    {
+                        "type": "ScrollView",
+                        "width": "100vw",
+                        "height": "100vh",
+                        "item": [
+                            {
+                                "type": "Container",
+                                "direction": "column",
+                                "alignItems": "center",
+                                "paddingLeft": 30,
+                                "paddingRight": 30,
+                                "paddingBottom": 100,
+                                "items": [
+                                    {
+                                        "type": "AlexaHeader",
+                                        "headerAttributionImage": "https://s3.amazonaws.com/alexaskillresourcesabarranc/icon_sermon_of_the_day.png",
+                                        "headerTitle": "Sermon of the Day - From Desiring God"
+                                    },
+                                    {
+                                    "type": "Container",
+                                    "direction": "row",
+                                    "alignItems": "stretch",
+                                    "paddingBottom": 20,
+                                    "items": [
+                                        {
+                                        "type": "TouchWrapper",
+                                        "width": "30vw",
+                                        "height": "15vw",
+                                        "paddingRight": 200,
+                                        "item": {
+                                                "type": "Frame",
+                                                "width": "30vw",
+                                                "height": "15vw",
+                                                "borderWidth": "0.1vw",
+                                                "borderColor": "#FFFFFF",
+                                                "backgroundColor": "#1F2226",
+                                                "item": {
+                                                    "type": "Text",
+                                                    "text": "Play/Pause",
+                                                    "width": "30vw",
+                                                    "height": "15vw",
+                                                    "fontWeight": "100",
+                                                    "fontSize": "5vw",
+                                                    "textAlign": "center",
+                                                    "textAlignVertical": "center"
+                                                }
+                                            },
+                                            "onPress": {
+                                                "type": "SendEvent",
+                                                "arguments": [
+                                                    "begin"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                        "type": "TouchWrapper",
+                                        "width": "30vw",
+                                        "height": "15vw",
+                                        "item": {
+                                                "type": "Frame",
+                                                "width": "30vw",
+                                                "height": "15vw",
+                                                "borderWidth": "0.1vw",
+                                                "borderColor": "#FFFFFF",
+                                                "backgroundColor": "#1F2226",
+                                                "item": {
+                                                    "type": "Text",
+                                                    "text": "Start Over",
+                                                    "width": "30vw",
+                                                    "height": "15vw",
+                                                    "fontWeight": "100",
+                                                    "fontSize": "5vw",
+                                                    "textAlign": "center",
+                                                    "textAlignVertical": "center"
+                                                }
+                                            },
+                                            "onPress": {
+                                                "type": "SendEvent",
+                                                "arguments": [
+                                                    "startover"
+                                                ]
+                                            }
+                                        }
+                                     ]
+                                    },
+                                    {
+                                        "type": "Text",
+                                        "text": "${payload.bodyTemplate3Data.textContent.title.text}",
+                                        "style": "textStyleBody",
+                                        "width": "90vw",
+                                        "textAlign": "center"
+                                    },
+                                   {
+                                        "type": "Text",
+                                        "text": "${payload.bodyTemplate3Data.textContent.scripturalRef.text}",
+                                        "style": "textStyleBody",
+                                        "width": "90vw",
+                                        "textAlign": "center",
+                                        "fontSize": "18"
+                                    },
+                                    {
+                                        "type": "Text",
+                                        "text": "Sermon of the Day - \n Streaming from Desiring God",
+                                        "style": "textStylePrimary",
+                                        "width": "90vw",
+                                        "fontSize": "18",
+                                        "textAlign": "center"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "Container",
+                "width": "100vw",
+                "height": "100vh",
+                "items": [
+                    {
+                        "type": "Image",
+                        "source": "https://s3.amazonaws.com/alexaskillresourcesabarranc/background.png",
+                        "scale": "none",
+                        "width": "100vw",
+                        "height": "100vh",
+                        "position": "absolute"
+                    },
+
+                    {
+                        "type": "Container",
+                        "direction": "row",
+                        "paddingLeft": 40,
+                        "paddingRight": 72,
+                        "grow": 1,
+                        "items": [
+                            {
+                                "type": "ScrollView",
+                                "height": "100vh",
+                                "shrink": 1,
+                                "alignItems": "center",
+                                "item": [
+                                    {
+                                        "type": "Container",
+                                        "alignItems": "center",
+                                        "items": [
+                                            {
+                                                "type": "Text",
+                                                "text": "${payload.bodyTemplate3Data.textContent.title.text}",
+                                                "style": "textStyleBody",
+                                                "fontSize": "7vw"
+                                            },
+                                           {
+                                                "type": "Text",
+                                                "text": "${payload.bodyTemplate3Data.textContent.scripturalRef.text}",
+                                                "style": "textStyleBody",
+                                                "width": "90vw",
+                                                "textAlign": "center",
+                                                "fontSize": "2vw",
+                                                "paddingBottom": "10vw"
+                                            },
+                                            {
+                                                "type": "Text",
+                                                "text": "Sermon of the Day - From Desiring God",
+                                                "style": "textStylePrimary"
+                                            },
+                                            {
+                                    "type": "Container",
+                                    "direction": "row",
+                                    "alignItems": "stretch",
+                                    "paddingBottom": 20,
+                                    "items": [
+                                        {
+                                        "type": "TouchWrapper",
+                                        "width": "30vw",
+                                        "height": "15vw",
+                                        "paddingRight": 200,
+                                        "item": {
+                                                "type": "Frame",
+                                                "width": "30vw",
+                                                "height": "15vw",
+                                                "borderWidth": "0.1vw",
+                                                "borderColor": "#FFFFFF",
+                                                "backgroundColor": "#1F2226",
+                                                "item": {
+                                                    "type": "Text",
+                                                    "text": "Play/Pause",
+                                                    "width": "30vw",
+                                                    "height": "15vw",
+                                                    "fontWeight": "100",
+                                                    "fontSize": "5vw",
+                                                    "textAlign": "center",
+                                                    "textAlignVertical": "center"
+                                                }
+                                            },
+                                            "onPress": {
+                                                "type": "SendEvent",
+                                                "arguments": [
+                                                    "begin"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                        "type": "TouchWrapper",
+                                        "width": "30vw",
+                                        "height": "15vw",
+                                        "item": {
+                                                "type": "Frame",
+                                                "width": "30vw",
+                                                "height": "15vw",
+                                                "borderWidth": "0.1vw",
+                                                "borderColor": "#FFFFFF",
+                                                "backgroundColor": "#1F2226",
+                                                "item": {
+                                                    "type": "Text",
+                                                    "text": "Start Over",
+                                                    "width": "30vw",
+                                                    "height": "15vw",
+                                                    "fontWeight": "100",
+                                                    "fontSize": "5vw",
+                                                    "textAlign": "center",
+                                                    "textAlignVertical": "center"
+                                                }
+                                            },
+                                            "onPress": {
+                                                "type": "SendEvent",
+                                                "arguments": [
+                                                    "startover"
+                                                ]
+                                            }
+                                        }
+                                     ]
+                                    }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
