@@ -1,21 +1,24 @@
+from ask_sdk.standard import StandardSkillBuilder
 import logging
 from datetime import datetime
 import calendar
 import pytz
 import requests
-from ask_sdk_core.skill_builder import SkillBuilder
 from ask_sdk_core.utils import is_request_type, is_intent_name
 from alexa import util
 
-sb = SkillBuilder()
+sb = StandardSkillBuilder(
+    table_name='Sermon_of_the_day_skill_play_data', auto_create_table=True)
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 API_URL = "https://api.desiringgod.org/"
 ICON_URL = "https://s3.amazonaws.com/alexaskillresourcesabarranc/icon_sermon_of_the_day.png"
 
 
-@sb.request_handler(can_handle_func=is_request_type("LaunchRequest"))
+@sb.request_handler(can_handle_func= lambda handler_input:
+            is_intent_name("PlayIntent") or
+            is_request_type("LaunchRequest"))
 def launch_request_handler(handler_input):
     """
     Launch request
@@ -43,16 +46,10 @@ def launch_request_handler(handler_input):
         index = now.timetuple().tm_yday + 1
     # Get information using index from DG API
     data = get_sermon_of_the_day(index)
+    apl_enabled = \
+        handler_input.request_envelope.context.system.device.supported_interfaces.alexa_presentation_apl is not None
     speech_text = "Playing Sermon of the day from Desiring God, titled: " + data['title']
-    response = util.play(url=data['sound_url'],
-                         offset=0,
-                         text=speech_text,
-                         data={'title': data['title'],
-                               'subtitle': 'Desiring God',
-                               'icon_url': ICON_URL},
-                         response_builder=handler_input.response_builder,
-                         document='APLTemplate.json',
-                         datasources={
+    data_sources = {
                             "bodyTemplate3Data": {
                                 "type": "object",
                                 "objectId": "bt3Sample",
@@ -67,9 +64,38 @@ def launch_request_handler(handler_input):
                                     }
                                 },
                                 "hintText": "Try, \"Alexa, start over.\""
-                            }})
-    logging.error(response)
+                            }}
+    info = {'title': data['title'],
+                               'subtitle': 'Desiring God',
+                               'icon_url': ICON_URL}
+    response = util.play(url=data['sound_url'],
+                         offset=0,
+                         text=speech_text,
+                         data=info,
+                         response_builder=handler_input.response_builder,
+                         document='alexa/APLTemplate.json',
+                         datasources=data_sources,
+                         apl_enabled=apl_enabled)
+    # Persistance atributes to make playback requests easier and faster
+    persistence_attr = handler_input.attributes_manager.persistent_attributes
+    persistence_attr['url'] = data['sound_url']
+    persistence_attr['data'] = info
+    persistence_attr['document'] = 'alexa/APLTemplate.json'
+    persistence_attr['datasources'] = data_sources
+    persistence_attr['apl_enabled'] = apl_enabled
     return response
+
+
+@sb.request_handler(can_handle_func=is_intent_name("AMAZON.PauseIntent"))
+def pause_request_handler(handler_input):
+    speech_text = 'Pausing sermon'
+    return util.stop(speech_text, handler_input.response_builder)
+
+
+@sb.request_handler(can_handle_func=is_intent_name("AMAZON.ResumeIntent"))
+def resume_request_handler(handler_input):
+    speech_text = 'Resuming sermon'
+    return util.resume(speech_text, handler_input)
 
 
 @sb.request_handler(can_handle_func=is_intent_name("AMAZON.HelpIntent"))
@@ -87,12 +113,21 @@ def help_intent_handler(handler_input):
 
 @sb.request_handler(
     can_handle_func=lambda handler_input:
+        is_intent_name("AMAZON.NextIntent")(handler_input) or
+        is_intent_name("AMAZON.PreviousIntent")(handler_input))
+def next_or_previous_handler(handler_input):
+    return handler_input.response_builder.speak(
+        'Can\'t do that, this skill only plays today\'s sermon').response
+
+
+@sb.request_handler(
+    can_handle_func=lambda handler_input:
         is_intent_name("AMAZON.CancelIntent")(handler_input) or
         is_intent_name("AMAZON.StopIntent")(handler_input))
 def cancel_and_stop_intent_handler(handler_input):
     """Single handler for Cancel and Stop Intent."""
     speech_text = "Goodbye"
-    return handler_input.response_builder.speak(speech_text).response
+    return util.stop(speech_text, handler_input.response_builder)
 
 
 @sb.request_handler(can_handle_func=is_intent_name("AMAZON.FallbackIntent"))
@@ -103,9 +138,8 @@ def fallback_handler(handler_input):
     """
     speech = (
         "The Sermon of the day skill can't help you with that."
-        "You can say play, pause, resume, start over, stop or exit.")
-    reprompt = "What would you like to do?"
-    handler_input.response_builder.speak(speech).ask(reprompt)
+        "You can say play, pause, resume, start over, stop or cancel.")
+    handler_input.response_builder.speak(speech)
     return handler_input.response_builder.response
 
 
@@ -115,22 +149,76 @@ def session_ended_request_handler(handler_input):
     return handler_input.response_builder.response
 
 
+@sb.request_handler(can_handle_func=is_request_type("AudioPlayer.PlaybackStarted"))
+def playback_started_handler(handler_input):
+    """Handler for Session End."""
+    logger.info("In Playback started")
+    return handler_input.response_builder.response
+
+
+@sb.request_handler(can_handle_func=is_request_type("AudioPlayer.PlaybackStopped"))
+def playback_stopped_handler(handler_input):
+    """Handler for Session End."""
+    logger.info("In PlaybackStopped")
+    return handler_input.response_builder.response
+
+
+@sb.request_handler(can_handle_func=is_request_type("AudioPlayer.PlaybackEnded"))
+def playback_ended_handler(handler_input):
+    """Handler for Session End."""
+    logger.info("In PlaybackEnded")
+    return handler_input.response_builder.response
+
+
 @sb.exception_handler(can_handle_func=lambda i, e: True)
 def all_exception_handler(handler_input, exception):
     """Catch all exception handler, log exception and
     respond with custom message.
     """
     logger.error(exception, exc_info=True)
-
-    speech = "Sorry, there was some problem. Please try again!"
-    handler_input.response_builder.speak(speech).ask(speech)
+    speech = "Sorry, a problem has occurred. Please try again later."
+    handler_input.response_builder.speak(speech).response
 
     return handler_input.response_builder.response
 
 
+@sb.global_request_interceptor()
+def process_request(handler_input):
+    """Log the alexa requests."""
+    logger.debug("Alexa Request: {}".format(
+        handler_input.request_envelope.request))
+
+
+@sb.global_response_interceptor()
+def process_response(handler_input, response):
+    logger.debug("Alexa Response: {}".format(response))
+
+
+@sb.global_request_interceptor()
+def process_request_persist(handler_input):
+    """Check if user is invoking skill for first time and initialize preset."""
+    persistence_attr = handler_input.attributes_manager.persistent_attributes
+
+    if len(persistence_attr) == 0:
+        persistence_attr["playback_info"] = {
+            "offset_in_ms": 0
+        }
+    else:
+        # Convert decimals to integers, because of AWS SDK DynamoDB issue
+        # https://github.com/boto/boto3/issues/369
+        playback_info = persistence_attr.get("playback_info")
+        playback_info["offset_in_ms"] = int(playback_info.get(
+            "offset_in_ms"))
+
+
+@sb.global_response_interceptor()
+def process_response(handler_input, response):
+    handler_input.attributes_manager.save_persistent_attributes()
+
+
 def get_sermon_of_the_day(index):
     """
-    Gets a tuple info on the sermon of the day
+    Gets a dictionary with info on the sermon of the day
     :param index: integer of day of year that will be retrieved
     :return: gets sermon of the day information as tuple for deconstructing, sound_url, title, and scriptural_ref
     """
