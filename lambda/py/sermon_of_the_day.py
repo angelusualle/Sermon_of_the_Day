@@ -16,7 +16,10 @@ API_URL = "https://api.desiringgod.org/"
 ICON_URL = "https://s3.amazonaws.com/alexaskillresourcesabarranc/icon_sermon_of_the_day.png"
 
 
-@sb.request_handler(can_handle_func=is_request_type("LaunchRequest"))
+@sb.request_handler(can_handle_func=lambda handler_input:
+                    is_intent_name("PlayIntent")(handler_input) or
+                    is_intent_name("AMAZON.StartOverIntent")(handler_input) or
+                    is_request_type("LaunchRequest")(handler_input))
 def launch_request_handler(handler_input):
     """
     Launch request
@@ -85,10 +88,24 @@ def launch_request_handler(handler_input):
     return response
 
 
+@sb.request_handler(can_handle_func= is_request_type("Alexa.Presentation.APL.UserEvent"))
+def user_event_handler(handler_input):
+    request = handler_input.request_envelope.request.to_dict()
+    logging.debug(request)
+    if request['arguments'][0] == 'startover':
+        return launch_request_handler(handler_input)
+    else:
+        persistence_attr = handler_input.attributes_manager.persistent_attributes
+        if not persistence_attr.get('playing', False):
+            return util.resume('Resuming', handler_input)
+        else:
+            return handler_input.response_builder.speak('Pausing').set_should_end_session(False).response
+
+
 @sb.request_handler(can_handle_func=is_intent_name("AMAZON.PauseIntent"))
 def pause_request_handler(handler_input):
     speech_text = 'Pausing sermon'
-    return util.stop(speech_text, handler_input.response_builder, end_session=False)
+    return util.stop(speech_text, handler_input.response_builder)
 
 
 @sb.request_handler(can_handle_func=is_intent_name("AMAZON.ResumeIntent"))
@@ -236,7 +253,7 @@ def get_sermon_of_the_day(index):
     title = data['data'][0]['attributes']['title']
     scriptural_ref = data['data'][0]['attributes']['scripture_references']
     if len(scriptural_ref) == 0:
-        scriptural_ref = 'No specific Scripture Noted.'
+        scriptural_ref = ' '
     elif len(scriptural_ref) > 1:
         scriptural_ref = ', '.join(scriptural_ref)
     else:
