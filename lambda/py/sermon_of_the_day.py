@@ -158,7 +158,7 @@ def playback_started_handler(handler_input):
 def playback_stopped_handler(handler_input):
     """Handler for Session End."""
     persistence_attr = handler_input.attributes_manager.persistent_attributes
-    persistence_attr['playback_info']['offset_in_ms'] = handler_input.request_envelope.request.to_dict()['offset_in_ms']
+    persistence_attr['playback_info']['offset_in_ms'] = handler_input.request_envelope.request.to_dict()['offset_in_milliseconds']
     logger.info("In PlaybackStopped")
 
     return handler_input.response_builder.response
