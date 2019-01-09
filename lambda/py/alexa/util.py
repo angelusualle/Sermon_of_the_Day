@@ -39,7 +39,7 @@ def play(url, offset, text, data, response_builder, document, datasources, apl_e
                 document=_load_apl_document(document),
                 datasources=datasources
             )
-        ).set_should_end_session(False)  # todo set to true for prod code
+        ).set_should_end_session(True)
     else:
         response_builder.set_should_end_session(True)
 
@@ -90,9 +90,11 @@ def add_screen_background(card_data):
         return None
 
 
-def resume(speech, handler_input):
+def resume(speech, handler_input, offset=-1):
     playback_info = handler_input.attributes_manager.persistent_attributes
-    return play(url=playback_info['url'], offset=get_playback_info(handler_input)['offset_in_ms'], text=speech,
+    if offset == -1:
+        offset = get_playback_info(handler_input)['offset_in_ms']
+    return play(url=playback_info['url'], offset=offset, text=speech,
                 data=playback_info['data'], response_builder=handler_input.response_builder,
                 document=playback_info['document'], datasources=playback_info['datasources'],
                 apl_enabled=playback_info['apl_enabled'])

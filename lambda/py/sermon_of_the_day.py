@@ -93,22 +93,24 @@ def user_event_handler(handler_input):
     request = handler_input.request_envelope.request.to_dict()
     logging.debug(request)
     if request['arguments'][0] == 'startover':
-        return launch_request_handler(handler_input)
+        return util.resume('Starting Over', handler_input, 0)
     else:
         persistence_attr = handler_input.attributes_manager.persistent_attributes
         if not persistence_attr.get('playing', False):
             return util.resume('Resuming', handler_input)
         else:
-            return handler_input.response_builder.speak('Pausing').set_should_end_session(False).response
+            return handler_input.response_builder.speak('Pausing').response
 
 
-@sb.request_handler(can_handle_func=is_intent_name("AMAZON.PauseIntent"))
+@sb.request_handler(can_handle_func=lambda handler_input: is_intent_name("AMAZON.PauseIntent")(handler_input) or
+                    is_request_type("PlaybackController.PauseCommandIssued")(handler_input))
 def pause_request_handler(handler_input):
     speech_text = 'Pausing sermon'
     return util.stop(speech_text, handler_input.response_builder)
 
 
-@sb.request_handler(can_handle_func=is_intent_name("AMAZON.ResumeIntent"))
+@sb.request_handler(can_handle_func=lambda handler_input: is_intent_name("AMAZON.ResumeIntent")(handler_input)
+                    or is_request_type("PlaybackController.PauseCommandIssued")(handler_input))
 def resume_request_handler(handler_input):
     speech_text = 'Resuming sermon'
     persistence_attr = handler_input.attributes_manager.persistent_attributes
@@ -133,7 +135,13 @@ def help_intent_handler(handler_input):
 @sb.request_handler(
     can_handle_func=lambda handler_input:
         is_intent_name("AMAZON.NextIntent")(handler_input) or
-        is_intent_name("AMAZON.PreviousIntent")(handler_input))
+        is_intent_name("AMAZON.PreviousIntent")(handler_input) or
+        is_intent_name("AMAZON.ShuffleOffIntent")(handler_input) or
+        is_intent_name("AMAZON.ShuffleOnIntent")(handler_input) or
+        is_intent_name("AMAZON.LoopOnIntent")(handler_input) or
+        is_intent_name("AMAZON.LoopOffIntent")(handler_input) or
+        is_request_type("PlaybackController.NextCommandIssued")(handler_input) or
+        is_request_type("PlaybackController.PreviousCommandIssued")(handler_input))
 def next_or_previous_handler(handler_input):
     return handler_input.response_builder.speak(
         'Can\'t do that, this skill only plays today\'s sermon').response
@@ -176,7 +184,11 @@ def playback_started_handler(handler_input):
     return handler_input.response_builder.response
 
 
-@sb.request_handler(can_handle_func=is_request_type("AudioPlayer.PlaybackStopped"))
+@sb.request_handler(can_handle_func=lambda handler_input:
+                    is_request_type("AudioPlayer.PlaybackEnded")(handler_input) or
+                    is_request_type("AudioPlayer.PlaybackFailed")(handler_input) or
+                    is_request_type("AudioPlayer.PlaybackFinished")(handler_input) or
+                    is_request_type("AudioPlayer.PlaybackStopped")(handler_input))
 def playback_stopped_handler(handler_input):
     """Handler for playback ended."""
     persistence_attr = handler_input.attributes_manager.persistent_attributes
@@ -185,10 +197,9 @@ def playback_stopped_handler(handler_input):
     return handler_input.response_builder.response
 
 
-@sb.request_handler(can_handle_func=is_request_type("AudioPlayer.PlaybackEnded"))
-def playback_ended_handler(handler_input):
-    """Handler for Session End."""
-    logger.info("In PlaybackEnded")
+@sb.request_handler(can_handle_func= is_request_type("AudioPlayer.PlaybackNearlyFinished"))
+def playback_null_handler(handler_input):
+    """Handler for nulls"""
     return handler_input.response_builder.response
 
 
