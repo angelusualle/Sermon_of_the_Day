@@ -45,7 +45,6 @@ def play(url, offset, text, data, response_builder, document, datasources, apl_e
 
     if text:
         response_builder.speak(text)
-
     return response_builder.response
 
 
@@ -55,7 +54,7 @@ def _load_apl_document(file_path):
         return json.load(f)
 
 
-def stop(text, response_builder):
+def stop(text, response_builder, end_session=True):
     """Issue stop directive to stop the audio.
     Issuing AudioPlayer.Stop directive to stop the audio.
     Attributes already stored when AudioPlayer.Stopped request received.
@@ -64,7 +63,7 @@ def stop(text, response_builder):
     if text:
         response_builder.speak(text)
 
-    return response_builder.set_should_end_session(True).response
+    return response_builder.set_should_end_session(end_session).response
 
 
 def clear(response_builder):

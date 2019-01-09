@@ -81,32 +81,36 @@ def launch_request_handler(handler_input):
     persistence_attr['document'] = 'alexa/APLTemplate.json'
     persistence_attr['datasources'] = data_sources
     persistence_attr['apl_enabled'] = apl_enabled
+    persistence_attr['playing'] = True
     return response
 
 
 @sb.request_handler(can_handle_func=is_intent_name("AMAZON.PauseIntent"))
 def pause_request_handler(handler_input):
     speech_text = 'Pausing sermon'
-    return util.stop(speech_text, handler_input.response_builder)
+    return util.stop(speech_text, handler_input.response_builder, end_session=False)
 
 
 @sb.request_handler(can_handle_func=is_intent_name("AMAZON.ResumeIntent"))
 def resume_request_handler(handler_input):
     speech_text = 'Resuming sermon'
-    return util.resume(speech_text, handler_input)
+    persistence_attr = handler_input.attributes_manager.persistent_attributes
+    if not persistence_attr.get('playing', False):
+        return util.resume(speech_text, handler_input)
+    else:
+        return handler_input.response_builder.speak('Resuming').response
 
 
 @sb.request_handler(can_handle_func=is_intent_name("AMAZON.HelpIntent"))
 def help_intent_handler(handler_input):
     """
-    Launch request
+    Help request
     :param handler_input: from the alexa skill
     :return: Response object with speech and audio and APL
     """
-    speech_text = "You can play, pause and start over the sermon."
+    speech_text = "You can play, pause and start over the sermon. Say cancel to Exit the stream."
 
-    return handler_input.response_builder.speak(speech_text).ask(
-        speech_text).response
+    return handler_input.response_builder.speak(speech_text).response
 
 
 @sb.request_handler(
@@ -149,18 +153,18 @@ def session_ended_request_handler(handler_input):
 
 @sb.request_handler(can_handle_func=is_request_type("AudioPlayer.PlaybackStarted"))
 def playback_started_handler(handler_input):
-    """Handler for Session End."""
-    logger.info("In Playback started")
+    """Handler for playback started."""
+    persistence_attr = handler_input.attributes_manager.persistent_attributes
+    persistence_attr['playing'] = True
     return handler_input.response_builder.response
 
 
 @sb.request_handler(can_handle_func=is_request_type("AudioPlayer.PlaybackStopped"))
 def playback_stopped_handler(handler_input):
-    """Handler for Session End."""
+    """Handler for playback ended."""
     persistence_attr = handler_input.attributes_manager.persistent_attributes
     persistence_attr['playback_info']['offset_in_ms'] = handler_input.request_envelope.request.to_dict()['offset_in_milliseconds']
-    logger.info("In PlaybackStopped")
-
+    persistence_attr['playing'] = False
     return handler_input.response_builder.response
 
 
