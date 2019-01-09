@@ -16,9 +16,7 @@ API_URL = "https://api.desiringgod.org/"
 ICON_URL = "https://s3.amazonaws.com/alexaskillresourcesabarranc/icon_sermon_of_the_day.png"
 
 
-@sb.request_handler(can_handle_func= lambda handler_input:
-            is_intent_name("PlayIntent") or
-            is_request_type("LaunchRequest"))
+@sb.request_handler(can_handle_func=is_request_type("LaunchRequest"))
 def launch_request_handler(handler_input):
     """
     Launch request
@@ -159,7 +157,10 @@ def playback_started_handler(handler_input):
 @sb.request_handler(can_handle_func=is_request_type("AudioPlayer.PlaybackStopped"))
 def playback_stopped_handler(handler_input):
     """Handler for Session End."""
+    persistence_attr = handler_input.attributes_manager.persistent_attributes
+    persistence_attr['playback_info']['offset_in_ms'] = handler_input.request_envelope.request.to_dict()['offset_in_ms']
     logger.info("In PlaybackStopped")
+
     return handler_input.response_builder.response
 
 
